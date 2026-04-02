@@ -1,9 +1,7 @@
-# 创建 which-key 显示命令的别名
-set -g command-alias[100] show-wk-menu-root='display-menu -x R -y P -T "#[align=centre,bold]#[fg=green,align=centre,bold]tmux#[align=centre,bold]" Run space command-prompt "Last window" tab last-window "Last pane" ` last-pane Copy c "show-wk-menu #{@wk_menu_copy}" "" +Windows w "show-wk-menu #{@wk_menu_windows}" +Panes p "show-wk-menu #{@wk_menu_panes}" +Buffers b "show-wk-menu #{@wk_menu_buffers}" +Sessions s "show-wk-menu #{@wk_menu_sessions}" +Client C "show-wk-menu #{@wk_menu_client}" "" Time T clock-mode "Show messages" \~ show-messages +Keys ? "list-keys -N"'
-
-# 绑定到 ' (单引号) 键，避免覆盖 gpakosz 的 '?'
-unbind-key -T prefix "'"
-bind-key -T prefix "'" show-wk-menu-root
+# 重新绑定 which-key 到 'W'（大写）
+# 避免与 gpakosz 和其他插件冲突
+unbind-key -T prefix W
+bind-key -T prefix W display-menu -T "#[align=centre,bold]#[fg=green,align=centre,bold]tmux#[align=centre,bold]" -x R -y P Run space command-prompt "Last window" tab last-window "Last pane" ` last-pane Copy c "show-wk-menu #{@wk_menu_copy}" '' +Windows w "show-wk-menu #{@wk_menu_windows}" +Panes p "show-wk-menu #{@wk_menu_panes}" +Buffers b "show-wk-menu #{@wk_menu_buffers}" +Sessions s "show-wk-menu #{@wk_menu_sessions}" +Client C "show-wk-menu #{@wk_menu_client}" '' Time T clock-mode "Show messages" \~ show-messages +Keys ? "list-keys -N"
 
 # 保持 thumbs 在 Space
 bind-key -T prefix Space run-shell -b /data/workspace/.tmux-plugins/tmux-thumbs/tmux-thumbs.sh

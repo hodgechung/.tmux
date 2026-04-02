@@ -12,7 +12,7 @@
 |------|------|--------|
 | tmux-cpu | CPU 监控 | 状态栏 |
 | tmux-fzf | 模糊搜索 | `Ctrl+B, F` |
-| tmux-which-key | 交互式菜单 | `Ctrl+B, '` |
+| tmux-which-key | 交互式菜单 | `Ctrl+B, Shift+W` |
 | tmux-sessionx | 会话管理 | `Ctrl+B, Shift+O` |
 | tmux-thumbs | 快速复制 | `Ctrl+B, Space` |
 | tmux-copycat | 内容搜索 | `Ctrl+B, /` |
@@ -36,7 +36,7 @@
 - gpakosz 占用 `?`
 
 **解决方案：**
-- which-key → `'` (单引号)
+- which-key → `'` (Shift+W)
 - thumbs → `Space`
 - gpakosz `?` 保留
 
@@ -128,7 +128,7 @@
 1. 克隆仓库
 2. 运行 `install_autorun.sh`
 3. 启动 tmux
-4. 按 `Ctrl+B, '` 探索
+4. 按 `Ctrl+B, Shift+W` 探索
 
 ### 高级用户
 - 自定义 `.tmux.conf.local`
