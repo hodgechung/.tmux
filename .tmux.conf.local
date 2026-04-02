@@ -561,3 +561,9 @@ tmux_conf_uninstall_plugins_on_reload=false
 # which-key 会把 Space 绑定到自己的菜单
 # 我们在最后重新绑定为默认行为
 bind-key -T prefix Space next-layout
+
+# ==========================================
+# 终极修复：启动后延迟绑定 Space
+# ==========================================
+# which-key 加载后会覆盖，所以我们延迟 1 秒再绑定
+run-shell 'sleep 1 && tmux bind-key -T prefix Space next-layout'
