@@ -67,3 +67,31 @@ Based on [gpakosz/.tmux](https://github.com/gpakosz/.tmux) - Copyright 2012— G
 本配置使用 `set-hook -g after-refresh-client` 来覆盖 gpakosz 主题的状态栏设置。
 这是唯一不修改 `.tmux.conf` 主配置文件的方法。
 
+
+## 📝 使用说明
+
+### 首次连接或重启后
+
+由于 gpakosz/.tmux 主题会覆盖状态栏配置，首次连接到 tmux 会话后需要应用自定义配置：
+
+```bash
+# 在 tmux 会话内或外执行:
+~/.tmux/apply_custom_statusbar.sh
+```
+
+或者手动执行（在 tmux 内按 `Ctrl+B` 然后 `:` 输入）：
+
+```
+source-file ~/.tmux.conf.override
+```
+
+### 自动化方案
+
+将以下内容添加到 `~/.bashrc` 或 `~/.zshrc`，自动在进入 tmux 时应用：
+
+```bash
+if [ -n "$TMUX" ]; then
+  ~/.tmux/apply_custom_statusbar.sh 2>/dev/null
+fi
+```
+
