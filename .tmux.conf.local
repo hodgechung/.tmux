@@ -547,3 +547,11 @@ set -g @tpm-clean 'false'
 set -g @plugin ''
 source-file ~/.tmux.conf.override
 source-file ~/.tmux/.tmux.conf.local.whichkey.final
+
+# ==========================================
+# 🔧 禁用 gpakosz 的 TPM 自动管理
+# ==========================================
+# 这些必须设置为 false 才能防止 returned 127 错误
+tmux_conf_update_plugins_on_launch=false
+tmux_conf_update_plugins_on_reload=false
+tmux_conf_uninstall_plugins_on_reload=false
