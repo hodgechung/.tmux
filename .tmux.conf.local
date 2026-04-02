@@ -29,3 +29,18 @@ source-file ~/.tmux.conf.override
 # which-key: Ctrl+B, ?
 # thumbs:    Ctrl+B, Space
 source-file ~/.tmux/.tmux.conf.local.whichkey
+
+# ==========================================
+# 常用配置覆盖
+# ==========================================
+
+# 新窗口继承当前路径
+bind c new-window -c '#{pane_current_path}'
+
+# 分割窗格继承当前路径
+bind '"' split-window -c '#{pane_current_path}'
+bind % split-window -h -c '#{pane_current_path}'
+
+# gpakosz 风格的分割键（也继承路径）
+bind - split-window -v -c '#{pane_current_path}'
+bind _ split-window -h -c '#{pane_current_path}'
