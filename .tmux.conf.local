@@ -1,3 +1,10 @@
+# ==========================================
+# 🔧 禁用 TPM（必须在最前面）
+# ==========================================
+tmux_conf_update_plugins_on_launch=false
+tmux_conf_update_plugins_on_reload=false
+tmux_conf_uninstall_plugins_on_reload=false
+
 # : << 'EOF'
 # Oh my tmux!
 # 💛🩷💙🖤❤️🤍
@@ -426,18 +433,15 @@ bind m run "cut -c3- '#{TMUX_CONF}' | sh -s _toggle_mouse" \; display 'mouse #{?
 # by default, launching tmux will update tpm and all plugins
 #   - true (default)
 #   - false
-tmux_conf_update_plugins_on_launch=true
 
 # by default, reloading the configuration will update tpm and all plugins
 #   - true (default)
 #   - false
-tmux_conf_update_plugins_on_reload=true
 
 # by default, reloading the configuration will uninstall tpm and plugins when no
 # plugins are enabled
 #   - true (default)
 #   - false
-tmux_conf_uninstall_plugins_on_reload=true
 
 # /!\ the tpm bindings differ slightly from upstream:
 #   - installing plugins: <prefix> + I
@@ -550,9 +554,6 @@ source-file ~/.tmux/.tmux.conf.local.whichkey.final
 # 🔧 禁用 gpakosz 的 TPM 自动管理
 # ==========================================
 # 这些必须设置为 false 才能防止 returned 127 错误
-tmux_conf_update_plugins_on_launch=false
-tmux_conf_update_plugins_on_reload=false
-tmux_conf_uninstall_plugins_on_reload=false
 
 # ==========================================
 # 强制覆盖 Space 键（防止 which-key 覆盖）
