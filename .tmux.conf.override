@@ -1,4 +1,7 @@
+# ==========================================
 # 最终覆盖配置
+# ==========================================
+
 # 强制 Space 键为 next-layout
 unbind-key -T prefix Space
 bind-key -T prefix Space next-layout
@@ -6,3 +9,53 @@ bind-key -T prefix Space next-layout
 # CPU 状态栏
 set -g status-right-length 200
 set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "
+
+# ==========================================
+# 📚 快捷键帮助菜单（覆盖默认的 ?）
+# ==========================================
+
+unbind-key -T prefix ?
+
+# Ctrl+B, ? → 交互式菜单
+bind-key -T prefix ? display-menu -T " tmux 快捷键 " -x C -y C \
+  "📁 Windows" w "display-menu -T 'Windows' -x C -y C \
+    'New window (c)' c new-window \
+    'Kill window (&)' '&' kill-window \
+    'Rename (,)' ',' command-prompt -I '#W' \"rename-window '%%'\" \
+    'Last (l)' l last-window \
+    'Next (n)' n next-window \
+    'Previous (p)' p previous-window \
+    'Choose (w)' w choose-window \
+    '' \
+    'Back' q detach" \
+  "📋 Panes" p "display-menu -T 'Panes' -x C -y C \
+    'Split horizontal (%)' '%' split-window -h \
+    'Split vertical (\")' '\"' split-window -v \
+    'Kill (x)' x kill-pane \
+    'Zoom (z)' z resize-pane -Z \
+    'Next layout (Space)' Space next-layout \
+    'Break (!)' '!' break-pane \
+    '' \
+    'Back' q detach" \
+  "🖥️  Sessions" s "display-menu -T 'Sessions' -x C -y C \
+    'New session (:)' ':' command-prompt -p 'session:' \"new-session -s '%%'\" \
+    'Choose (s)' s choose-session \
+    'Rename ($)' '$' command-prompt -I '#S' \"rename-session '%%'\" \
+    'Detach (d)' d detach \
+    '' \
+    'Back' q detach" \
+  "📋 Copy" c "display-menu -T 'Copy Mode' -x C -y C \
+    'Enter ([)' '[' copy-mode \
+    'Paste (])' ']' paste-buffer \
+    'Choose (=)' '=' choose-buffer \
+    '' \
+    'Back' q detach" \
+  "" \
+  "📖 All Keys (h)" h "list-keys -N" \
+  "⏱️  Clock (t)" t clock-mode \
+  "" \
+  "❌ Close" q detach
+
+# Ctrl+B, h → 显示所有快捷键（带描述）
+unbind-key -T prefix h
+bind-key -T prefix h list-keys -N
