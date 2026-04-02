@@ -1,9 +1,7 @@
 #!/bin/bash
-# 手动加载所有插件（带错误处理）
+# 手动加载所有插件（静默模式）
 
 PLUGIN_DIR="/data/workspace/.tmux-plugins"
-
-echo "加载插件..."
 
 # 定义插件列表（插件名:脚本路径）
 plugins=(
@@ -21,16 +19,7 @@ for entry in "${plugins[@]}"; do
   plugin="${entry#*:}"
   
   if [ -f "$plugin" ]; then
-    echo -n "  [$name] "
-    if tmux run-shell "$plugin" 2>/dev/null; then
-      echo "✓"
-    else
-      echo "⚠️ (跳过)"
-    fi
-  else
-    echo "  [$name] ✗ 文件不存在"
+    # 静默运行，不显示输出
+    tmux run-shell "$plugin" >/dev/null 2>&1
   fi
 done
-
-echo ""
-echo "✅ 插件加载完成（部分插件可能被跳过）"
