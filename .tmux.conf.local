@@ -554,3 +554,10 @@ source-file ~/.tmux/.tmux.conf.local.whichkey.final
 tmux_conf_update_plugins_on_launch=false
 tmux_conf_update_plugins_on_reload=false
 tmux_conf_uninstall_plugins_on_reload=false
+
+# ==========================================
+# 强制覆盖 Space 键（防止 which-key 覆盖）
+# ==========================================
+# which-key 会把 Space 绑定到自己的菜单
+# 我们在最后重新绑定为默认行为
+bind-key -T prefix Space next-layout
