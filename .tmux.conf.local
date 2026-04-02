@@ -1,6 +1,8 @@
-# 基于 gpakosz/.tmux 的自定义配置
+# ============================================
+# tmux 配置 - 基于 gpakosz/.tmux
+# ============================================
 
-# 插件列表
+# ---- 插件配置 ----
 set -g @plugin 'tmux-plugins/tmux-cpu'
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
@@ -10,16 +12,16 @@ set -g @plugin 'tmux-plugins/tmux-copycat'
 set -g @plugin 'fcsonline/tmux-thumbs'
 set -g @plugin 'omerxx/tmux-sessionx'
 
-# 插件配置
+# 插件选项
 set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15'
 
-# CPU 显示（覆盖默认状态栏）
-set -g status-right-length 200
-set -g status-right "#{?client_prefix,⌨ ,} | CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "
+# ---- 主题配置（使用 gpakosz 的变量）----
+# 自定义状态栏右侧（添加 CPU 显示）
+tmux_conf_theme_status_right='#{prefix}#{mouse}#{pairing}#{synchronized} | CPU: #{cpu_percentage} | %R | %d %b | #{username}#{root} | #{hostname} '
 
-# 初始化 TPM (必须在最后)
+# 如果上面不工作，尝试用 hook
+set-hook -g after-refresh-client 'set -g status-right "#{?client_prefix,⌨,} | CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "'
+
+# ---- TPM 初始化 ----
 run '~/.tmux/plugins/tpm/tpm'
-
-# 最终覆盖（在所有主题设置之后）
-source-file ~/.tmux.conf.override
