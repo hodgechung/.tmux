@@ -1,0 +1,39 @@
+# ============================================
+# tmux 配置 - 基于 gpakosz/.tmux
+# ============================================
+
+# 插件目录（持久化存储）
+set-environment -g TMUX_PLUGIN_MANAGER_PATH '/data/workspace/.tmux-plugins'
+
+# ---- 插件配置 ----
+set -g @plugin 'tmux-plugins/tmux-cpu'
+set -g @plugin 'tmux-plugins/tmux-resurrect'
+set -g @plugin 'tmux-plugins/tmux-continuum'
+set -g @plugin 'alexwforsythe/tmux-which-key'
+set -g @plugin 'sainnhe/tmux-fzf'
+set -g @plugin 'tmux-plugins/tmux-copycat'
+set -g @plugin 'fcsonline/tmux-thumbs'
+set -g @plugin 'omerxx/tmux-sessionx'
+
+# 插件选项
+set -g @continuum-restore 'on'
+set -g @continuum-save-interval '15'
+
+# ---- TPM 初始化 ----
+run '/data/workspace/.tmux-plugins/tpm/tpm'
+
+# ---- 最终覆盖（必须在最后）----
+source-file ~/.tmux.conf.override
+
+# ---- 重新绑定 which-key（避免与 thumbs 冲突）----
+# which-key: Ctrl+B, ?
+# thumbs:    Ctrl+B, Space
+source-file ~/.tmux/.tmux.conf.local.whichkey
+
+# ==========================================
+
+# ==========================================
+# 禁用 gpakosz 的 TPM 插件加载
+# ==========================================
+# 我们使用手动加载方式，不需要 TPM
+set -g @plugin ''
