@@ -454,7 +454,6 @@ set -g @plugin 'tmux-plugins/tmux-cpu'
 set -g @plugin 'alexwforsythe/tmux-which-key'   # 按 prefix 后弹出提示
 set -g @plugin 'sainnhe/tmux-fzf'               # prefix + F 模糊搜索
 set -g @plugin 'tmux-plugins/tmux-copycat'      # 正则搜索屏幕内容
-set -g @plugin 'fcsonline/tmux-thumbs'          # 快速复制屏幕上的内容
 set -g @plugin 'omerxx/tmux-sessionx'           # 高级会话切换
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
