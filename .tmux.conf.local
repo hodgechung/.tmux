@@ -539,13 +539,13 @@ set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu
 run '~/.tmux/plugins/tpm/tpm'
 
 # ==========================================
-# 🔧 手动插件管理修复
+# 🔧 FIXES (Added by restore script)
 # ==========================================
-# 禁用 TPM 自动加载（防止 returned 127 错误）
+# Disable TPM to prevent 'returned 127' error
 set -g @plugin ''
 
-# 加载配置覆盖
+# Load override configs
 source-file ~/.tmux.conf.override
 
-# 加载 which-key 绑定
+# Load which-key bindings
 source-file ~/.tmux/.tmux.conf.local.whichkey
