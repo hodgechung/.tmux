@@ -24,3 +24,8 @@ run '/data/workspace/.tmux-plugins/tpm/tpm'
 
 # ---- 最终覆盖（必须在最后）----
 source-file ~/.tmux.conf.override
+
+# ---- 重新绑定 which-key（避免与 thumbs 冲突）----
+# which-key: Ctrl+B, ?
+# thumbs:    Ctrl+B, Space
+source-file ~/.tmux/.tmux.conf.local.whichkey

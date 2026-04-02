@@ -1,0 +1,4 @@
+# 重新绑定 which-key 到 '?' 键（避免与 tmux-thumbs 冲突）
+unbind-key -T prefix Space
+bind-key -T prefix ? run-shell "~/.tmux/plugins/tmux-which-key/which-key.sh"
+bind-key -T prefix Space run-shell -b /data/workspace/.tmux-plugins/tmux-thumbs/tmux-thumbs.sh
