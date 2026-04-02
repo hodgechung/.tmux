@@ -534,7 +534,7 @@ set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu
 # ============================================
 # TPM 插件管理器初始化（必须在最后）
 # ============================================
-run '~/.tmux/plugins/tpm/tpm'
+#DISABLED# run '~/.tmux/plugins/tpm/tpm'
 
 # ==========================================
 # 🔧 CRITICAL FIXES
