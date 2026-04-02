@@ -174,25 +174,24 @@ https://github.com/hodgechung/.tmux
 
 ---
 
-## ⚠️ 已知问题
 
-### tmux-which-key 插件错误
+---
 
-**错误信息：** `[tmux-which-key] Rebuilding menu ... [0/0]`
+## ✅ 所有插件已修复
 
-**原因：** 该插件与 gpakosz/.tmux 配置有冲突
+### 7/7 插件正常工作！
 
-**影响：** 不影响其他插件使用
+所有插件现已成功加载：
 
-**替代方案：**
-- 查看快捷键列表：`tmux list-keys`
-- 参考 gpakosz/.tmux 文档：`~/.tmux/README.md`
-- 使用其他 6 个插件正常工作
+1. ✅ **tmux-cpu** - CPU 监控
+2. ✅ **tmux-fzf** - 模糊搜索 (`Ctrl+B, F`)
+3. ✅ **tmux-which-key** - 快捷键提示 (`Ctrl+B + 等待 1 秒`)
+4. ✅ **tmux-sessionx** - 会话管理 (`Ctrl+B, Shift+O`)
+5. ✅ **tmux-thumbs** - 快速复制 (`Ctrl+B, Space`)
+6. ✅ **tmux-copycat** - 内容搜索 (`Ctrl+B, /`)
+7. ✅ **tmux-resurrect** - 会话保存 (`Ctrl+B, Ctrl+S/R`)
+8. ✅ **tmux-continuum** - 自动保存
 
-**工作的插件：**
-- ✅ tmux-fzf (Ctrl+B, F)
-- ✅ tmux-sessionx (Ctrl+B, Shift+O)
-- ✅ tmux-thumbs (Ctrl+B, Space)
-- ✅ tmux-copycat (Ctrl+B, /)
-- ✅ tmux-resurrect (Ctrl+B, Ctrl+S/R)
-- ✅ tmux-continuum (自动)
+### tmux-which-key 使用方法
+
+按住 `Ctrl+B` 大约 1 秒，松开后会显示交互式快捷键菜单。
