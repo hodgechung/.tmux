@@ -171,3 +171,28 @@ https://github.com/hodgechung/.tmux
 ---
 
 **享受强大的 tmux！** 🚀
+
+---
+
+## ⚠️ 已知问题
+
+### tmux-which-key 插件错误
+
+**错误信息：** `[tmux-which-key] Rebuilding menu ... [0/0]`
+
+**原因：** 该插件与 gpakosz/.tmux 配置有冲突
+
+**影响：** 不影响其他插件使用
+
+**替代方案：**
+- 查看快捷键列表：`tmux list-keys`
+- 参考 gpakosz/.tmux 文档：`~/.tmux/README.md`
+- 使用其他 6 个插件正常工作
+
+**工作的插件：**
+- ✅ tmux-fzf (Ctrl+B, F)
+- ✅ tmux-sessionx (Ctrl+B, Shift+O)
+- ✅ tmux-thumbs (Ctrl+B, Space)
+- ✅ tmux-copycat (Ctrl+B, /)
+- ✅ tmux-resurrect (Ctrl+B, Ctrl+S/R)
+- ✅ tmux-continuum (自动)
