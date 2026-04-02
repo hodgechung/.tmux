@@ -19,9 +19,8 @@ set -g @plugin 'omerxx/tmux-sessionx'
 set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15'
 
-# ---- 状态栏配置 ----
-# 使用 hook 覆盖 gpakosz 主题
-set-hook -g after-refresh-client 'set -g status-right " ⌨#{?client_prefix,ON,} | CPU: #(/data/workspace/.tmux-plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "'
-
 # ---- TPM 初始化 ----
 run '/data/workspace/.tmux-plugins/tpm/tpm'
+
+# ---- 最终覆盖（必须在最后）----
+source-file ~/.tmux.conf.override

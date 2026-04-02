@@ -1,0 +1,3 @@
+# 强制覆盖状态栏（在所有配置加载后）
+set -g status-right-length 250
+set -g status-right " ⌨#{?client_prefix,ON,} | CPU: #(/data/workspace/.tmux-plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "
