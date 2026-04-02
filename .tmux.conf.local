@@ -460,7 +460,6 @@ set -g @plugin 'fcsonline/tmux-thumbs'          # 快速复制屏幕上的内容
 set -g @plugin 'omerxx/tmux-sessionx'           # 高级会话切换
 set -g @plugin 'tmux-plugins/tmux-resurrect'
 set -g @plugin 'tmux-plugins/tmux-continuum'
-set -g @plugin 'alexwforsythe/tmux-which-key'   # 按 prefix 后弹出提示
 set -g @continuum-restore 'on'
 set -g @continuum-save-interval '15' # 每15分钟自动保存
 
