@@ -20,3 +20,6 @@ set -g status-right "#{?client_prefix,⌨ ,} | CPU: #(~/.tmux/plugins/tmux-cpu/s
 
 # 初始化 TPM (必须在最后)
 run '~/.tmux/plugins/tpm/tpm'
+
+# 最终覆盖（在所有主题设置之后）
+source-file ~/.tmux.conf.override
