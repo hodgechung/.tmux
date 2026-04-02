@@ -1,3 +1,6 @@
+# 强制覆盖 ? 键（防止 override 文件干扰）
+unbind-key -T prefix ?
+
 # ==========================================
 # 📚 完整快捷键帮助菜单
 # ==========================================
@@ -55,3 +58,9 @@ bind-key -T prefix ? display-menu -T "#[align=centre bold] tmux 快捷键 " -x C
 # 快捷键：直接显示所有键绑定
 bind-key -T prefix / list-keys -N
 
+
+# Ctrl+B, Ctrl+/ 显示所有快捷键（/ 被 copycat 占用）
+bind-key -T prefix C-/ list-keys -N
+
+# 或者使用 Ctrl+B, h（help）
+bind-key -T prefix h list-keys -N
