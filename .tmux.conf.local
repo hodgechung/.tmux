@@ -548,7 +548,6 @@ set -g @tpm-update 'false'
 set -g @tpm-clean 'false'
 set -g @plugin ''
 source-file ~/.tmux.conf.override
-source-file ~/.tmux/.tmux.conf.local.whichkey.final
 
 # ==========================================
 # 🔧 禁用 gpakosz 的 TPM 自动管理
@@ -569,3 +568,8 @@ bind-key -T prefix Space next-layout
 
 # Space 键 = 切换面板布局（默认行为）
 bind-key -T prefix Space next-layout
+
+# ==========================================
+# 📚 快捷键帮助菜单
+# ==========================================
+source-file ~/.tmux/.tmux.conf.local.help
