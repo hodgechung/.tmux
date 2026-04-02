@@ -1,3 +1,8 @@
-# 强制覆盖状态栏（在所有配置加载后）
-set -g status-right-length 250
-set -g status-right " ⌨#{?client_prefix,ON,} | CPU: #(/data/workspace/.tmux-plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "
+# 最终覆盖配置
+# 强制 Space 键为 next-layout
+unbind-key -T prefix Space
+bind-key -T prefix Space next-layout
+
+# CPU 状态栏
+set -g status-right-length 200
+set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "
