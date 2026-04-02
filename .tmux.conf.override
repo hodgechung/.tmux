@@ -11,51 +11,126 @@ set -g status-right-length 200
 set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %d-%b | #(whoami)@#H "
 
 # ==========================================
-# 📚 快捷键帮助菜单（覆盖默认的 ?）
+# 📚 新手友好的快捷键菜单
 # ==========================================
 
 unbind-key -T prefix ?
 
-# Ctrl+B, ? → 交互式菜单
-bind-key -T prefix ? display-menu -T " tmux 快捷键 " -x C -y C \
-  "📁 Windows" w "display-menu -T 'Windows' -x C -y C \
-    'New window (c)' c new-window \
-    'Kill window (&)' '&' kill-window \
-    'Rename (,)' ',' command-prompt -I '#W' \"rename-window '%%'\" \
-    'Last (l)' l last-window \
-    'Next (n)' n next-window \
-    'Previous (p)' p previous-window \
-    'Choose (w)' w choose-window \
-    '' \
-    'Back' q detach" \
-  "📋 Panes" p "display-menu -T 'Panes' -x C -y C \
-    'Split horizontal (%)' '%' split-window -h \
-    'Split vertical (\")' '\"' split-window -v \
-    'Kill (x)' x kill-pane \
-    'Zoom (z)' z resize-pane -Z \
-    'Next layout (Space)' Space next-layout \
-    'Break (!)' '!' break-pane \
-    '' \
-    'Back' q detach" \
-  "🖥️  Sessions" s "display-menu -T 'Sessions' -x C -y C \
-    'New session (:)' ':' command-prompt -p 'session:' \"new-session -s '%%'\" \
-    'Choose (s)' s choose-session \
-    'Rename ($)' '$' command-prompt -I '#S' \"rename-session '%%'\" \
-    'Detach (d)' d detach \
-    '' \
-    'Back' q detach" \
-  "📋 Copy" c "display-menu -T 'Copy Mode' -x C -y C \
-    'Enter ([)' '[' copy-mode \
-    'Paste (])' ']' paste-buffer \
-    'Choose (=)' '=' choose-buffer \
-    '' \
-    'Back' q detach" \
+# Ctrl+B, ? → 主菜单
+bind-key -T prefix ? display-menu -T "━━━ tmux 快捷键 (新手版) ━━━" -x C -y C \
   "" \
-  "📖 All Keys (h)" h "list-keys -N" \
-  "⏱️  Clock (t)" t clock-mode \
+  "🪟 窗口 (Windows)" 1 "display-menu -T '━━━ 窗口操作 ━━━' -x C -y C \
+    '➕ 新建窗口 [c]' c new-window \
+    '❌ 关闭窗口 [&]' '&' confirm-before -p 'kill window #W? (y/n)' kill-window \
+    '✏️  重命名窗口 [,]' ',' command-prompt -I '#W' 'rename-window \"%%\"' \
+    '' \
+    '⬅️  上一个窗口 [p]' p previous-window \
+    '➡️  下一个窗口 [n]' n next-window \
+    '🔙 最后一个窗口 [l]' l last-window \
+    '🔢 跳转到窗口 [0-9]' 0 select-window -t :0 \
+    '📋 选择窗口 [w]' w choose-window \
+    '' \
+    '↩️  返回主菜单' q 'display-menu -T \"━━━ tmux 快捷键 (新手版) ━━━\" -x C -y C \"\" \"🪟 窗口 (Windows)\" 1 \"\" \"📱 面板 (Panes)\" 2 \"\" \"🖥️  会话 (Sessions)\" 3 \"\" \"📋 复制模式 (Copy)\" 4 \"\" \"⚙️  其他操作\" 5 \"\" \"\" \"📖 查看所有快捷键 [h]\" h \"list-keys -N\" \"❌ 关闭菜单\" q detach'" \
   "" \
-  "❌ Close" q detach
+  "📱 面板 (Panes)" 2 "display-menu -T '━━━ 面板操作 ━━━' -x C -y C \
+    '➗ 左右分割 [%%]' '%' split-window -h \
+    '➗ 上下分割 [\"]' '\"' split-window -v \
+    '❌ 关闭面板 [x]' x kill-pane \
+    '' \
+    '⬆️  切换到上面板 [↑]' Up select-pane -U \
+    '⬇️  切换到下面板 [↓]' Down select-pane -D \
+    '⬅️  切换到左面板 [←]' Left select-pane -L \
+    '➡️  切换到右面板 [→]' Right select-pane -R \
+    '🔄 循环切换面板 [o]' o select-pane -t :.+ \
+    '' \
+    '🔍 放大/缩小面板 [z]' z resize-pane -Z \
+    '🔄 切换布局 [Space]' Space next-layout \
+    '💥 面板变窗口 [!]' '!' break-pane \
+    '🔃 与下面板交换 [}]' '}' swap-pane -D \
+    '🔃 与上面板交换 [{]' '{' swap-pane -U \
+    '' \
+    '↩️  返回主菜单' q 'display-menu -T \"━━━ tmux 快捷键 (新手版) ━━━\" -x C -y C \"\" \"🪟 窗口 (Windows)\" 1 \"\" \"📱 面板 (Panes)\" 2 \"\" \"🖥️  会话 (Sessions)\" 3 \"\" \"📋 复制模式 (Copy)\" 4 \"\" \"⚙️  其他操作\" 5 \"\" \"\" \"📖 查看所有快捷键 [h]\" h \"list-keys -N\" \"❌ 关闭菜单\" q detach'" \
+  "" \
+  "🖥️  会话 (Sessions)" 3 "display-menu -T '━━━ 会话操作 ━━━' -x C -y C \
+    '➕ 新建会话' ':' 'command-prompt -p \"session name:\" \"new-session -s %%\"' \
+    '📋 选择会话 [s]' s choose-session \
+    '✏️  重命名会话' r 'command-prompt -I \"#S\" \"rename-session %%\"' \
+    '🚪 断开连接 [d]' d detach-client \
+    '' \
+    '↩️  返回主菜单' q 'display-menu -T \"━━━ tmux 快捷键 (新手版) ━━━\" -x C -y C \"\" \"🪟 窗口 (Windows)\" 1 \"\" \"📱 面板 (Panes)\" 2 \"\" \"🖥️  会话 (Sessions)\" 3 \"\" \"📋 复制模式 (Copy)\" 4 \"\" \"⚙️  其他操作\" 5 \"\" \"\" \"📖 查看所有快捷键 [h]\" h \"list-keys -N\" \"❌ 关闭菜单\" q detach'" \
+  "" \
+  "📋 复制模式 (Copy)" 4 "display-menu -T '━━━ 复制模式 ━━━' -x C -y C \
+    '📝 进入复制模式 [[]' '[' copy-mode \
+    '📋 粘贴缓冲区 []]' ']' paste-buffer \
+    '📑 选择缓冲区 [=]' '=' choose-buffer \
+    '📃 列出缓冲区 [#]' '#' list-buffers \
+    '' \
+    '💡 复制模式提示:' '' '' \
+    '  - 用方向键移动光标' '' '' \
+    '  - Space 开始选择' '' '' \
+    '  - Enter 复制并退出' '' '' \
+    '  - q 退出复制模式' '' '' \
+    '' \
+    '↩️  返回主菜单' q 'display-menu -T \"━━━ tmux 快捷键 (新手版) ━━━\" -x C -y C \"\" \"🪟 窗口 (Windows)\" 1 \"\" \"📱 面板 (Panes)\" 2 \"\" \"🖥️  会话 (Sessions)\" 3 \"\" \"📋 复制模式 (Copy)\" 4 \"\" \"⚙️  其他操作\" 5 \"\" \"\" \"📖 查看所有快捷键 [h]\" h \"list-keys -N\" \"❌ 关闭菜单\" q detach'" \
+  "" \
+  "⚙️  其他操作" 5 "display-menu -T '━━━ 其他操作 ━━━' -x C -y C \
+    '🔄 重载配置 [r]' r 'source-file ~/.tmux.conf \; display \"配置已重载!\"' \
+    '⏱️  显示时钟 [t]' t clock-mode \
+    '💬 显示消息 [~]' '~' show-messages \
+    '🔍 查找文本 [/]' '/' run-shell '/data/workspace/.tmux-plugins/tmux-copycat/scripts/copycat_search.sh' \
+    '🔎 模糊搜索 [F]' F run-shell '/data/workspace/.tmux-plugins/tmux-fzf/main.sh' \
+    '' \
+    '❓ 显示命令提示' ':' command-prompt \
+    '' \
+    '↩️  返回主菜单' q 'display-menu -T \"━━━ tmux 快捷键 (新手版) ━━━\" -x C -y C \"\" \"🪟 窗口 (Windows)\" 1 \"\" \"📱 面板 (Panes)\" 2 \"\" \"🖥️  会话 (Sessions)\" 3 \"\" \"📋 复制模式 (Copy)\" 4 \"\" \"⚙️  其他操作\" 5 \"\" \"\" \"📖 查看所有快捷键 [h]\" h \"list-keys -N\" \"❌ 关闭菜单\" q detach'" \
+  "" \
+  "" \
+  "📖 查看所有快捷键 [h]" h "list-keys -N" \
+  "❌ 关闭菜单" q detach
 
-# Ctrl+B, h → 显示所有快捷键（带描述）
+# Ctrl+B, h → 显示所有快捷键（完整列表）
 unbind-key -T prefix h
 bind-key -T prefix h list-keys -N
+
+# Ctrl+B, H → 显示帮助信息
+bind-key -T prefix H display-message "
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  tmux 新手快速参考
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+🎯 Prefix 键: Ctrl+B (所有快捷键前先按这个)
+
+📖 帮助:
+  ?  打开交互式菜单
+  h  查看所有快捷键
+  H  显示此帮助
+
+🪟 窗口 (多个标签页):
+  c  新建窗口
+  ,  重命名窗口
+  n  下一个窗口
+  p  上一个窗口
+  0-9 跳转到窗口
+  w  选择窗口
+
+📱 面板 (分屏):
+  %  左右分割
+  \"  上下分割
+  ↑↓←→ 切换面板
+  o  循环切换
+  z  放大/缩小
+  x  关闭面板
+
+🖥️  会话 (多个工作环境):
+  s  选择会话
+  d  断开连接
+  :new -s name  新建会话
+
+📋 复制:
+  [  进入复制模式
+  Space 开始选择
+  Enter 复制
+  ]  粘贴
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+"
