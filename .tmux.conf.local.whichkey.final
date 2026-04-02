@@ -1,0 +1,30 @@
+# ==========================================
+# 简化版快捷键菜单（不依赖 which-key 插件）
+# ==========================================
+
+# 解绑旧的 ? 键
+unbind-key -T prefix ?
+
+# 创建静态帮助菜单
+bind-key -T prefix ? display-menu -T "tmux Quick Menu" -x C -y C \
+  "📁 Windows" "" "" \
+  "  New window" "c" "new-window" \
+  "  Kill window" "&" "confirm-before -p 'kill window #W? (y/n)' kill-window" \
+  "  List all" "w" "choose-tree -Zw" \
+  "" \
+  "📋 Panes" "" "" \
+  "  Split →" "%" "split-window -h" \
+  "  Split ↓" '"' "split-window -v" \
+  "  Kill pane" "x" "confirm-before -p 'kill pane #P? (y/n)' kill-pane" \
+  "  Zoom toggle" "z" "resize-pane -Z" \
+  "" \
+  "🖥️  Sessions" "" "" \
+  "  New session" ":" "command-prompt -p 'new session:' 'new-session -s %%'" \
+  "  Choose session" "s" "choose-tree -Zs" \
+  "" \
+  "⚙️  Other" "" "" \
+  "  Reload config" "r" "source-file ~/.tmux.conf \; display 'Config reloaded'" \
+  "  List all keys" "/" "list-keys -N"
+
+# 保持 which-key 在 Space（原有插件功能）
+# （如果插件加载失败，Space 会回退到默认行为）

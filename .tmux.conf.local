@@ -546,4 +546,4 @@ set -g @tpm-update 'false'
 set -g @tpm-clean 'false'
 set -g @plugin ''
 source-file ~/.tmux.conf.override
-source-file ~/.tmux/.tmux.conf.local.whichkey.simple
+source-file ~/.tmux/.tmux.conf.local.whichkey.final
