@@ -31,3 +31,9 @@ source-file ~/.tmux.conf.override
 source-file ~/.tmux/.tmux.conf.local.whichkey
 
 # ==========================================
+
+# ==========================================
+# 禁用 gpakosz 的 TPM 插件加载
+# ==========================================
+# 我们使用手动加载方式，不需要 TPM
+set -g @plugin ''
