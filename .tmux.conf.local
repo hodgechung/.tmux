@@ -541,16 +541,9 @@ run '~/.tmux/plugins/tpm/tpm'
 # ==========================================
 # 🔧 CRITICAL FIXES
 # ==========================================
-# 禁用主配置文件中的 TPM 加载（防止 returned 127）
 set -g @tpm-install 'false'
 set -g @tpm-update 'false'
 set -g @tpm-clean 'false'
-
-# 清空插件列表（防止自动加载）
 set -g @plugin ''
-
-# 加载我们的覆盖配置
 source-file ~/.tmux.conf.override
-
-# 加载 which-key 绑定
-source-file ~/.tmux/.tmux.conf.local.whichkey
+source-file ~/.tmux/.tmux.conf.local.whichkey.simple
