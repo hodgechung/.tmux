@@ -71,7 +71,7 @@ tmux new -s test
 # 应该自动显示 CPU 监控
 
 # 4. 测试插件
-# Ctrl+B, Shift+W → 应该显示 which-key 菜单
+# Ctrl+B, ? → 应该显示 which-key 菜单
 ```
 
 ---

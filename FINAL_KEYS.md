@@ -12,7 +12,7 @@
 
 | 快捷键 | 功能 | 插件 | 说明 |
 |--------|------|------|------|
-| `Ctrl+B, Shift+W` | **which-key 菜单** | tmux-which-key | 交互式菜单 ⭐ |
+| `Ctrl+B, ?` | **which-key 菜单** | tmux-which-key | 交互式菜单 ⭐ |
 | `Ctrl+B, F` | 模糊搜索 | tmux-fzf | 搜索会话/窗口 |
 | `Ctrl+B, Shift+O` | 会话管理 | tmux-sessionx | fzf 会话选择 |
 | `Ctrl+B, Space` | 快速复制 | tmux-thumbs | 文本快速标记 |
@@ -41,12 +41,12 @@
 
 ### 触发方式
 ```
-Ctrl+B, Shift+W  (Shift+W键)
+Ctrl+B, ?  (?键)
 ```
 
 ### 主菜单选项
 
-按下 `Ctrl+B, Shift+W` 后显示：
+按下 `Ctrl+B, ?` 后显示：
 
 ```
 ┌─────── tmux ───────┐
@@ -108,7 +108,7 @@ tmux new -s work
 ```
 
 ### 2. 探索功能
-- 按 `Ctrl+B, Shift+W` 查看 which-key 菜单
+- 按 `Ctrl+B, ?` 查看 which-key 菜单
 - 按 `Ctrl+B, F` 尝试模糊搜索
 - 按 `Ctrl+B, Space` 快速复制屏幕文本
 - 按 `Ctrl+B, Shift+O` 管理会话
@@ -133,7 +133,7 @@ tmux new -s work
 ## 💡 提示
 
 ### 记不住快捷键？
-直接按 `Ctrl+B, Shift+W` 打开 which-key 菜单！
+直接按 `Ctrl+B, ?` 打开 which-key 菜单！
 
 ### 想要列表形式？
 按 `Ctrl+B, ?` 查看 gpakosz 的完整键列表

@@ -3,7 +3,7 @@
 ## 核心快捷键（记住这 5 个）
 
 ```
-Ctrl+B, Shift+W   → which-key 菜单 ⭐
+Ctrl+B, ?   → which-key 菜单 ⭐
 Ctrl+B, F         → 模糊搜索
 Ctrl+B, Shift+O   → 会话管理  
 Ctrl+B, Space     → 快速复制
@@ -16,7 +16,7 @@ Ctrl+B, /         → 内容搜索
 
 | 键 | 含义 | 记忆方法 |
 |----|------|----------|
-| **Shift+W** | Which-key | **W** = **W**hich 哪个键 |
+| **?** | Which-key | **W** = **W**hich 哪个键 |
 | **F** | Fuzzy search | **F**uzzy 模糊搜索 |
 | **Shift+O** | Overview | **O**verview 会话总览 |
 | **Space** | Text thumbs | 空格 = 快速标记 |
@@ -27,7 +27,7 @@ Ctrl+B, /         → 内容搜索
 ## 📋 完整列表
 
 ### 插件快捷键
-- `Ctrl+B, Shift+W` - which-key 菜单
+- `Ctrl+B, ?` - which-key 菜单
 - `Ctrl+B, F` - tmux-fzf 搜索
 - `Ctrl+B, Shift+O` - 会话管理
 - `Ctrl+B, Space` - 快速复制
@@ -53,7 +53,7 @@ Ctrl+B, /         → 内容搜索
 ## 🎯 使用场景
 
 ### 不知道按什么？
-→ `Ctrl+B, Shift+W` 打开 which-key 菜单
+→ `Ctrl+B, ?` 打开 which-key 菜单
 
 ### 找窗口/会话？
 → `Ctrl+B, F` 模糊搜索
