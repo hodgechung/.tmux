@@ -1,25 +1,30 @@
 #!/bin/bash
-# 手动加载所有插件（静默模式）
+# 手动加载所有插件（确保正确顺序）
 
 PLUGIN_DIR="/data/workspace/.tmux-plugins"
 
-# 定义插件列表（插件名:脚本路径）
+# 先加载 which-key（重要）
+if [ -f "$PLUGIN_DIR/tmux-which-key/plugin/init.tmux" ]; then
+  tmux source-file "$PLUGIN_DIR/tmux-which-key/plugin/init.tmux" 2>/dev/null
+fi
+
+# 然后加载其他插件
 plugins=(
-  "tmux-fzf:$PLUGIN_DIR/tmux-fzf/main.tmux"
-  "tmux-which-key:$PLUGIN_DIR/tmux-which-key/plugin.sh.tmux"
-  "tmux-sessionx:$PLUGIN_DIR/tmux-sessionx/sessionx.tmux"
-  "tmux-copycat:$PLUGIN_DIR/tmux-copycat/copycat.tmux"
-  "tmux-thumbs:$PLUGIN_DIR/tmux-thumbs/tmux-thumbs.tmux"
-  "tmux-resurrect:$PLUGIN_DIR/tmux-resurrect/resurrect.tmux"
-  "tmux-continuum:$PLUGIN_DIR/tmux-continuum/continuum.tmux"
+  "$PLUGIN_DIR/tmux-fzf/main.tmux"
+  "$PLUGIN_DIR/tmux-sessionx/sessionx.tmux"
+  "$PLUGIN_DIR/tmux-copycat/copycat.tmux"
+  "$PLUGIN_DIR/tmux-thumbs/tmux-thumbs.tmux"
+  "$PLUGIN_DIR/tmux-resurrect/resurrect.tmux"
+  "$PLUGIN_DIR/tmux-continuum/continuum.tmux"
 )
 
-for entry in "${plugins[@]}"; do
-  name="${entry%%:*}"
-  plugin="${entry#*:}"
-  
+for plugin in "${plugins[@]}"; do
   if [ -f "$plugin" ]; then
-    # 静默运行，不显示输出
-    tmux run-shell "$plugin" >/dev/null 2>&1
+    tmux run-shell "$plugin" 2>/dev/null
   fi
 done
+
+# 最后加载我们的覆盖配置（确保 ? 绑定生效）
+if [ -f "$HOME/.tmux/.tmux.conf.local.whichkey" ]; then
+  tmux source-file "$HOME/.tmux/.tmux.conf.local.whichkey" 2>/dev/null
+fi
