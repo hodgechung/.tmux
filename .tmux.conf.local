@@ -585,3 +585,11 @@ set-hook -g client-attached    "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" 
 set-hook -g after-select-window "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
 set-hook -g after-new-window   "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
 set-hook -g pane-focus-in      "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
+
+# ==========================================
+# 📊 CPU status-right（必须在 _apply_theme 之后重贴才显示）
+# ==========================================
+set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %Y-%m-%d | #(whoami)@#H " #!important
+
+# 注：continuum.tmux 的加载在 apply_cheatsheet.sh 里做（只加载一次），
+# 因为 _apply_important 只 grep set/bind/unbind 行，不处理 run-shell。
