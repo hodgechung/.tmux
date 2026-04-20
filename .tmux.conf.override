@@ -33,14 +33,14 @@ set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu
 # ==========================================
 
 # client 连上时应用（覆盖 oh-my-tmux 异步主题之后的空值）
-set-hook -g client-attached 'run-shell -b "/root/.tmux/apply_cheatsheet.sh"'
+set-hook -g client-attached 'run-shell -b "$HOME/.tmux/apply_cheatsheet.sh"'
 
 # 切换窗口后再贴一次（防止某些场景下被重置）
-set-hook -g after-select-window 'run-shell -b "/root/.tmux/apply_cheatsheet.sh"'
+set-hook -g after-select-window 'run-shell -b "$HOME/.tmux/apply_cheatsheet.sh"'
 
 # 重载快捷键：source-file 之后显式跑脚本（这里 run-shell 可以跑，
 # 因为是 binding 触发而不是 source 嵌套）
 unbind r
 bind r source-file ~/.tmux.conf \; \
-       run-shell -b '/root/.tmux/apply_cheatsheet.sh' \; \
+       run-shell -b '$HOME/.tmux/apply_cheatsheet.sh' \; \
        display-message "config reloaded"
