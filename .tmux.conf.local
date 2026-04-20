@@ -580,11 +580,11 @@ source-file ~/.tmux/.tmux.conf.local.help
 # 带 #!important 标记的 set/bind/unbind 行，在那时再 source 一次。
 # 这样我们的 hook 就能保留不被清空。
 # ==========================================
-set-hook -g session-created    "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
-set-hook -g client-attached    "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
-set-hook -g after-select-window "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
-set-hook -g after-new-window   "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
-set-hook -g pane-focus-in      "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
+set-hook -g session-created    "run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh'" #!important
+set-hook -g client-attached    "run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh'" #!important
+set-hook -g after-select-window "run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh'" #!important
+set-hook -g after-new-window   "run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh'" #!important
+set-hook -g pane-focus-in      "run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh'" #!important
 
 # ==========================================
 # 📊 CPU status-right（必须在 _apply_theme 之后重贴才显示）

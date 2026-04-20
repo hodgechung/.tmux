@@ -21,5 +21,5 @@ set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu
 # 重载快捷键：C-b r 手动重载主 config 后也立即跑一次 apply 脚本
 unbind r
 bind r source-file ~/.tmux.conf \; \
-       run-shell -b '$HOME/.tmux/apply_cheatsheet.sh' \; \
+       run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh' \; \
        display-message "config reloaded"

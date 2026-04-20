@@ -8,3 +8,6 @@ plugins
 tmux-client-*.log
 tmux-server-*.log
 tmux-out-*.log
+
+# OMC 运行状态
+.omc/

@@ -4,11 +4,11 @@
 # 用法：
 #   1. 在有网机器：
 #        git clone --depth 1 git@github.com:hodgechung/.tmux.git
-#        cd .tmux && bash pack-offline.sh     # 生成 tmux-offline.tar.gz
+#        bash .tmux/scripts/pack-offline.sh     # 生成 tmux-offline.tar.gz
 #   2. 拷贝 tmux-offline.tar.gz 到目标机器
 #   3. 在目标机器：
 #        tar xzf tmux-offline.tar.gz -C "$HOME"
-#        bash "$HOME/.tmux/install.offline.sh"
+#        bash "$HOME/.tmux/scripts/install.offline.sh"
 #
 # 脚本做什么：
 #   - 确保 ~/.tmux.conf symlink 指向 ~/.tmux/.tmux.conf
@@ -36,7 +36,7 @@ else
 fi
 
 # 3. 脚本可执行位
-chmod +x "$TMUX_DIR/apply_cheatsheet.sh" 2>/dev/null || true
+chmod +x "$TMUX_DIR/scripts/"*.sh 2>/dev/null || true
 
 # 4. tmux 版本检查
 if ! command -v tmux >/dev/null 2>&1; then
