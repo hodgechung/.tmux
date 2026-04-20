@@ -48,7 +48,7 @@ TOP="$(dirname "$TMUX_DIR")"
 REL="$(basename "$TMUX_DIR")"   # 通常是 .tmux
 
 BIN_DIR="$TMUX_DIR/bin"
-APPIMAGE="$BIN_DIR/tmux"
+APPIMAGE="$BIN_DIR/tmux.appimage"   # 独立命名，避免和 bin/tmux symlink 冲突
 
 # ---------- 可选：下载 tmux AppImage ----------
 download_tmux() {
@@ -102,10 +102,71 @@ download_tmux() {
 
 if [ "$WITH_TMUX" = true ]; then
   download_tmux "$TMUX_VER"
+
+  # ---------- 预解压 AppImage，使 tarball 自带可执行 tmux ----------
+  # 背景：目标机器若没 FUSE / 无法直接 --appimage-extract（需要调用
+  # AppImage 本身），或目标环境 chmod 不可用/受限，最稳的方案就是在
+  # 打包机上解压好，并显式 chmod 所有可执行文件；tar 默认会保留文件
+  # 模式位 (0755)，解包即可直接 exec。
+  if [ -d "$BIN_DIR/squashfs-root" ]; then
+    echo "ⓘ squashfs-root 已存在，跳过解压"
+  else
+    echo "→ 在打包机预解压 AppImage (使用 FUSE)"
+    if ( cd "$BIN_DIR" && "$APPIMAGE" --appimage-extract >/dev/null 2>&1 ); then
+      echo "✓ 预解压完成: $BIN_DIR/squashfs-root/"
+    else
+      echo "⚠ 打包机也无法 --appimage-extract；tarball 将只含 AppImage 本体"
+      echo "  （离线机器需要自行处理 FUSE / 解压）"
+    fi
+  fi
+
+  # 确保预解压后的 tmux 二进制 + terminfo 相关脚本的 mode 位正确
+  if [ -d "$BIN_DIR/squashfs-root" ]; then
+    find "$BIN_DIR/squashfs-root" \
+         -type f \( -name "tmux" -o -name "*.so*" -o -name "*.sh" \) \
+         -exec chmod 755 {} + 2>/dev/null || true
+    chmod 755 "$BIN_DIR/squashfs-root/AppRun" 2>/dev/null || true
+  fi
+  chmod 755 "$APPIMAGE" 2>/dev/null || true
+
+  # 生成一份预制 wrapper，打进包里，解包后直接可用（同样靠 tar 保留模式位）
+  TERMINFO_REL="bin/squashfs-root/usr/share/terminfo"
+  REAL_TMUX_REL="bin/squashfs-root/usr/bin/tmux"
+  cat > "$BIN_DIR/tmux-wrapper" <<WRAPPER_EOF
+#!/usr/bin/env bash
+# 预生成的 wrapper（由 pack-offline.sh 打包时生成）
+# 功能：给随包解压出的 tmux 注入 TERMINFO_DIRS
+TI="\${HOME}/.tmux/$TERMINFO_REL"
+if [ -n "\${TERMINFO_DIRS:-}" ]; then
+  export TERMINFO_DIRS="\${TERMINFO_DIRS}:\$TI"
+else
+  export TERMINFO_DIRS="\$TI"
+fi
+# 外部 TERM 查不到就兜底
+if [ -z "\${TERM:-}" ] || ! TERMINFO_DIRS="\$TERMINFO_DIRS" infocmp "\$TERM" >/dev/null 2>&1; then
+  export TERM=screen-256color
+fi
+exec "\${HOME}/.tmux/$REAL_TMUX_REL" "\$@"
+WRAPPER_EOF
+  chmod 755 "$BIN_DIR/tmux-wrapper"
+  # 让 bin/tmux 变成 wrapper 的符号链接（tar 会保留 symlink）
+  ln -sf "tmux-wrapper" "$BIN_DIR/tmux"
+  echo "✓ 预制 wrapper: $BIN_DIR/tmux-wrapper"
+  echo "✓ bin/tmux -> tmux-wrapper (symlink)"
+
+  # 预解压成功后，删掉 5.5MB 的原 AppImage 省空间
+  if [ -d "$BIN_DIR/squashfs-root" ]; then
+    rm -f "$APPIMAGE"
+    printf '%s\n' "$TMUX_VER" > "$BIN_DIR/.tmux-version"
+    echo "ⓘ 已删除原 AppImage（squashfs-root 已就绪）"
+  fi
 else
   # 没选 --with-tmux 时，如果旧的 AppImage 仍在目录里，从打包里排掉
   [ -d "$BIN_DIR" ] && echo "ⓘ 当前未请求 --with-tmux，bin/ 目录会被打包进去（如不需要请手动删除）"
 fi
+
+# 所有 .sh 脚本都确保可执行
+find "$TMUX_DIR/scripts" -type f -name "*.sh" -exec chmod 755 {} + 2>/dev/null || true
 
 # ---------- 打包 ----------
 echo "→ 打包 $TMUX_DIR -> $OUT"
