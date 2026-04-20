@@ -11,3 +11,11 @@ tmux-out-*.log
 
 # OMC 运行状态
 .omc/
+
+# pack-offline 产物
+tmux-offline*.tar.gz
+bin/
+
+# pack-offline 产物
+tmux-offline*.tar.gz
+bin/

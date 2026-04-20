@@ -20,15 +20,44 @@ set -euo pipefail
 
 # 对极简 shell（busybox / 受限容器 / PATH 未继承）补全 PATH，
 # 否则 ln/chmod/tmux/awk/mv 等基础命令会 command not found
-export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH:-}"
+export PATH="$HOME/.tmux/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH:-}"
 
 # 解析 ln / chmod 的绝对路径，真的没 ln 时退化为 cp
 LN_BIN=$(command -v ln || true)
 CHMOD_BIN=$(command -v chmod || true)
+# 优先用随包携带的 ~/.tmux/bin/tmux（AppImage），其次系统 tmux
 TMUX_BIN=$(command -v tmux || true)
 
 TMUX_DIR="$HOME/.tmux"
 CONF="$HOME/.tmux.conf"
+
+# 如果存在打包好的 tmux AppImage，确保它可执行并优先使用
+BUNDLED_TMUX="$TMUX_DIR/bin/tmux"
+if [ -f "$BUNDLED_TMUX" ]; then
+  [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$BUNDLED_TMUX" 2>/dev/null || true
+  # FUSE 检测：能 -V 就直接用
+  if "$BUNDLED_TMUX" -V >/dev/null 2>&1; then
+    TMUX_BIN="$BUNDLED_TMUX"
+    echo "✓ 使用随包 tmux: $BUNDLED_TMUX ($("$BUNDLED_TMUX" -V))"
+  else
+    # 没有 FUSE / 内核限制，尝试自动解压 AppImage
+    echo "⚠ $BUNDLED_TMUX 无法直接运行（通常是内核无 FUSE 支持）"
+    if [ ! -x "$TMUX_DIR/bin/squashfs-root/usr/bin/tmux" ]; then
+      echo "→ 尝试用 --appimage-extract 解压..."
+      ( cd "$TMUX_DIR/bin" && "$BUNDLED_TMUX" --appimage-extract >/dev/null 2>&1 ) || true
+    fi
+    if [ -x "$TMUX_DIR/bin/squashfs-root/usr/bin/tmux" ]; then
+      TMUX_BIN="$TMUX_DIR/bin/squashfs-root/usr/bin/tmux"
+      echo "✓ 已解压 AppImage，使用: $TMUX_BIN"
+      # 提示加入 PATH
+      echo "  建议把下面一行加进 ~/.bashrc 或 ~/.zshrc:"
+      echo "    export PATH=\"$TMUX_DIR/bin/squashfs-root/usr/bin:\$PATH\""
+    else
+      echo "✗ 解压也失败，请手动处理："
+      echo "  cd $TMUX_DIR/bin && ./tmux --appimage-extract"
+    fi
+  fi
+fi
 
 # 1. 必要文件检查
 [ -d "$TMUX_DIR" ]          || { echo "ERR: $TMUX_DIR 不存在，请先解包"; exit 1; }
