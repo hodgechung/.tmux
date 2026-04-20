@@ -573,3 +573,15 @@ bind-key -T prefix Space next-layout
 # 📚 快捷键帮助菜单
 # ==========================================
 source-file ~/.tmux/.tmux.conf.local.help
+
+# ==========================================
+# 📟 Cheat-sheet hooks（必须在 _apply_theme 之后执行）
+# _apply_important 会在 _apply_configuration 末尾 grep 出所有
+# 带 #!important 标记的 set/bind/unbind 行，在那时再 source 一次。
+# 这样我们的 hook 就能保留不被清空。
+# ==========================================
+set-hook -g session-created    "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
+set-hook -g client-attached    "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
+set-hook -g after-select-window "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
+set-hook -g after-new-window   "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
+set-hook -g pane-focus-in      "run-shell -b '$HOME/.tmux/apply_cheatsheet.sh'" #!important
