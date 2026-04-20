@@ -1,3 +1,10 @@
 plugins/**
 plugins/
 plugins
+
+# 本地备份与日志
+*.bak.*
+*.backup.*
+tmux-client-*.log
+tmux-server-*.log
+tmux-out-*.log

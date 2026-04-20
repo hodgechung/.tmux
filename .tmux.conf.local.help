@@ -1,66 +1,73 @@
-# 强制覆盖 ? 键（防止 override 文件干扰）
+# ==========================================
+# 📚 Prefix + ? 帮助菜单（使用 tmux 3.0+ 块语法）
+# ==========================================
+#
+# 设计原则：
+#   1. 使用 { ... } 块语法，避免反斜杠转义陷阱
+#   2. 每个子菜单命令完整包在 {} 里，tmux 解析为一个命令参数
+#   3. 不使用终端无法传递的键位（如 C-/）
+#   4. 返回上一级用 detach，真的要“回主菜单”就再按一次 ?
+#
+# 前提：tmux >= 3.0 （当前 3.4 ✓）
+# ==========================================
+
+# -- 清理可能被其他文件设的旧绑定 ----------------------------------------------
 unbind-key -T prefix ?
+unbind-key -T prefix h
+unbind-key -T prefix H
 
-# ==========================================
-# 📚 完整快捷键帮助菜单
-# ==========================================
-
-# 主菜单 - Ctrl+B, ?
+# -- 主菜单 Prefix + ? -------------------------------------------------------
 bind-key -T prefix ? display-menu -T "#[align=centre bold] tmux 快捷键 " -x C -y C \
-  "📁 Windows" w "display-menu -T 'Windows' -x C -y C \
-    'New window' c new-window \
-    'Kill window' '&' kill-window \
-    'Rename window' ',' command-prompt -I '#W' \"rename-window '%%'\" \
-    'Last window' l last-window \
-    'Next window' n next-window \
-    'Previous window' p previous-window \
-    'Choose window' w choose-window \
-    '' \
-    'Back' q detach" \
-  "📋 Panes" p "display-menu -T 'Panes' -x C -y C \
-    'Split horizontal' '%' split-window -h \
-    'Split vertical' '\"' split-window -v \
-    'Kill pane' x kill-pane \
-    'Toggle zoom' z resize-pane -Z \
-    'Next layout' Space next-layout \
-    'Break pane' '!' break-pane \
-    'Swap pane down' '}' swap-pane -D \
-    'Swap pane up' '{' swap-pane -U \
-    '' \
-    'Back' q detach" \
-  "🖥️  Sessions" s "display-menu -T 'Sessions' -x C -y C \
-    'New session' ':' command-prompt -p 'new session:' \"new-session -s '%%'\" \
-    'Choose session' s choose-session \
-    'Rename session' '$' command-prompt -I '#S' \"rename-session '%%'\" \
-    'Detach' d detach \
-    '' \
-    'Back' q detach" \
-  "📋 Copy Mode" c "display-menu -T 'Copy Mode' -x C -y C \
-    'Enter copy mode' '[' copy-mode \
-    'Paste buffer' ']' paste-buffer \
-    'Choose buffer' '=' choose-buffer \
-    'List buffers' '#' list-buffers \
-    '' \
-    'Back' q detach" \
-  "🔧 Config" r "display-menu -T 'Config' -x C -y C \
-    'Reload config' r source-file ~/.tmux.conf \
-    'Show options' ':' command-prompt \"show-options -g '%%'\" \
-    'Show keys' '/' list-keys \
-    'Show commands' '~' show-messages \
-    '' \
-    'Back' q detach" \
-  "" \
-  "📖 List ALL Keys" "/" "list-keys -N" \
-  "⏱️  Clock" t clock-mode \
-  "" \
-  "❌ Close" q detach
+  "📁 Windows"            w  { display-menu -T " Windows " -x C -y C \
+                                "New window"        c   { new-window -c "#{pane_current_path}" } \
+                                "Kill window"       "&" { confirm-before -p "kill window #W? (y/n)" kill-window } \
+                                "Rename window"     ","  { command-prompt -I "#W" { rename-window "%%" } } \
+                                ""                  ""   "" \
+                                "Last window"       l   { last-window } \
+                                "Next window"       n   { next-window } \
+                                "Previous window"   p   { previous-window } \
+                                "Choose window"     W   { choose-window } \
+                                ""                  ""   "" \
+                                "Close"             q   { detach-client } } \
+  "📋 Panes"              p  { display-menu -T " Panes " -x C -y C \
+                                "Split horizontal"  "%" { split-window -h -c "#{pane_current_path}" } \
+                                "Split vertical"    "\"" { split-window -v -c "#{pane_current_path}" } \
+                                ""                  ""   "" \
+                                "Kill pane"         x   { confirm-before -p "kill pane #P? (y/n)" kill-pane } \
+                                "Toggle zoom"       z   { resize-pane -Z } \
+                                "Next layout"       Space { next-layout } \
+                                "Break pane"        "!" { break-pane } \
+                                ""                  ""   "" \
+                                "Swap pane down"    "}" { swap-pane -D } \
+                                "Swap pane up"      "{" { swap-pane -U } \
+                                ""                  ""   "" \
+                                "Close"             q   { detach-client } } \
+  "🖥  Sessions"          s  { display-menu -T " Sessions " -x C -y C \
+                                "New session"       N   { command-prompt -p "new session:" { new-session -s "%%" } } \
+                                "Choose session"    c   { choose-tree -Zs } \
+                                "Rename session"    r   { command-prompt -I "#S" { rename-session "%%" } } \
+                                "Detach"            d   { detach-client } \
+                                ""                  ""   "" \
+                                "Close"             q   { detach-client } } \
+  "📋 Copy Mode"          C  { display-menu -T " Copy Mode " -x C -y C \
+                                "Enter copy mode"   "[" { copy-mode } \
+                                "Paste buffer"      "]" { paste-buffer -p } \
+                                "Choose buffer"     "=" { choose-buffer } \
+                                "List buffers"      "#" { list-buffers } \
+                                ""                  ""   "" \
+                                "Close"             q   { detach-client } } \
+  "🔧 Config"             R  { display-menu -T " Config " -x C -y C \
+                                "Reload config"     r   { source-file ~/.tmux.conf ; display-message "config reloaded" } \
+                                "Show global opts"  o   { command-prompt -p "option:" { show-options -g "%%" } } \
+                                "List all keys"     k   { list-keys -N } \
+                                "Show messages"     m   { show-messages } \
+                                ""                  ""   "" \
+                                "Close"             q   { detach-client } } \
+  ""                      ""   "" \
+  "📖 List ALL Keys"      "/"  { list-keys -N } \
+  "⏱  Clock"              t    { clock-mode } \
+  ""                      ""   "" \
+  "❌ Close"              q    { detach-client }
 
-# 快捷键：直接显示所有键绑定
-bind-key -T prefix / list-keys -N
-
-
-# Ctrl+B, Ctrl+/ 显示所有快捷键（/ 被 copycat 占用）
-bind-key -T prefix C-/ list-keys -N
-
-# 或者使用 Ctrl+B, h（help）
+# -- 直接快捷键 -------------------------------------------------------------
 bind-key -T prefix h list-keys -N
