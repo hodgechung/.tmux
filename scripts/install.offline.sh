@@ -43,13 +43,34 @@ if [ -f "$BUNDLED_TMUX" ]; then
   else
     # 没有 FUSE / 内核限制，尝试自动解压 AppImage
     echo "⚠ $BUNDLED_TMUX 无法直接运行（通常是内核无 FUSE 支持）"
-    if [ ! -x "$TMUX_DIR/bin/squashfs-root/usr/bin/tmux" ]; then
-      echo "→ 尝试用 --appimage-extract 解压..."
-      ( cd "$TMUX_DIR/bin" && "$BUNDLED_TMUX" --appimage-extract >/dev/null 2>&1 ) || true
+
+    # 解压目标：先试就地解压。如果 $HOME 挂载了 noexec（常见于
+    # /data/home 这种 NAS），解压出来的 tmux 也不可执行，需要搬到 /tmp
+    EXTRACT_DIR="$TMUX_DIR/bin"
+    if [ ! -x "$EXTRACT_DIR/squashfs-root/usr/bin/tmux" ]; then
+      echo "→ 尝试用 --appimage-extract 就地解压..."
+      ( cd "$EXTRACT_DIR" && "$BUNDLED_TMUX" --appimage-extract >/dev/null 2>&1 ) || true
     fi
-    REAL_TMUX="$TMUX_DIR/bin/squashfs-root/usr/bin/tmux"
-    TERMINFO_DIR="$TMUX_DIR/bin/squashfs-root/usr/share/terminfo"
-    if [ -x "$REAL_TMUX" ]; then
+    [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$EXTRACT_DIR/squashfs-root/usr/bin/tmux" 2>/dev/null || true
+
+    # 检测就地解压的二进制能否执行（noexec 场景会返回非 0）
+    if ! "$EXTRACT_DIR/squashfs-root/usr/bin/tmux" -V >/dev/null 2>&1; then
+      echo "⚠ 就地解压的 tmux 无法执行（$HOME 可能是 noexec 挂载）"
+      # 搬到 /tmp
+      ALT_DIR="/tmp/tmux-appimage-$(id -u)"
+      echo "→ 搬到 $ALT_DIR 并重新解压..."
+      rm -rf "$ALT_DIR"
+      mkdir -p "$ALT_DIR"
+      cp -f "$BUNDLED_TMUX" "$ALT_DIR/tmux.appimage"
+      [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$ALT_DIR/tmux.appimage"
+      ( cd "$ALT_DIR" && "$ALT_DIR/tmux.appimage" --appimage-extract >/dev/null 2>&1 ) || true
+      EXTRACT_DIR="$ALT_DIR"
+    fi
+
+    REAL_TMUX="$EXTRACT_DIR/squashfs-root/usr/bin/tmux"
+    TERMINFO_DIR="$EXTRACT_DIR/squashfs-root/usr/share/terminfo"
+
+    if [ -x "$REAL_TMUX" ] && "$REAL_TMUX" -V >/dev/null 2>&1; then
       # AppImage 解压后 tmux 找不到 terminfo，写一个 wrapper 自动设置环境
       cat > "$WRAPPER" <<WRAPPER_EOF
 #!/usr/bin/env bash
@@ -69,21 +90,41 @@ fi
 exec "$REAL_TMUX" "\$@"
 WRAPPER_EOF
       [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$WRAPPER" 2>/dev/null || true
-      # 让 ~/.tmux/bin/tmux 指向 wrapper（用户习惯直接敲 tmux），
-      # 保留原 AppImage 为 tmux.appimage
-      if [ -n "$LN_BIN" ]; then
-        mv -f "$BUNDLED_TMUX" "$TMUX_DIR/bin/tmux.appimage" 2>/dev/null || true
-        "$LN_BIN" -sfn "$WRAPPER" "$BUNDLED_TMUX"
+
+      # 判断 wrapper 本身能否直接执行（$HOME noexec 时不能）
+      if [ -x "$WRAPPER" ] && "$WRAPPER" -V >/dev/null 2>&1; then
+        # 可以直接执行：让 ~/.tmux/bin/tmux 软链到 wrapper
+        if [ -n "$LN_BIN" ]; then
+          mv -f "$BUNDLED_TMUX" "$TMUX_DIR/bin/tmux.appimage" 2>/dev/null || true
+          "$LN_BIN" -sfn "$WRAPPER" "$BUNDLED_TMUX"
+        fi
+        TMUX_BIN="$WRAPPER"
+        echo "✓ 已生成 wrapper: $WRAPPER"
+      else
+        # wrapper 所在目录可能 noexec；用 bash 间接调用的 stub 替代 tmux
+        echo "⚠ wrapper 不可执行（$HOME 是 noexec），创建 bash 中转 stub"
+        STUB="/tmp/tmux-stub-$(id -u)"
+        cat > "$STUB" <<STUB_EOF
+#!/usr/bin/env bash
+exec bash "$WRAPPER" "\$@"
+STUB_EOF
+        [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$STUB" 2>/dev/null || true
+        if [ -n "$LN_BIN" ]; then
+          mv -f "$BUNDLED_TMUX" "$TMUX_DIR/bin/tmux.appimage" 2>/dev/null || true
+          "$LN_BIN" -sfn "$STUB" "$BUNDLED_TMUX" 2>/dev/null || cp -f "$STUB" "$BUNDLED_TMUX"
+        fi
+        TMUX_BIN="$STUB"
+        echo "✓ 中转 stub: $STUB (bash $WRAPPER)"
       fi
-      TMUX_BIN="$WRAPPER"
-      echo "✓ 已解压 AppImage + 生成 wrapper"
-      echo "  $WRAPPER → exec $REAL_TMUX"
-      echo "  wrapper 注入 TERMINFO_DIRS=$TERMINFO_DIR"
-      # 让当前脚本会话就能用 wrapper
+      echo "  真 tmux: $REAL_TMUX"
+      echo "  terminfo: $TERMINFO_DIR"
+      # 让当前脚本会话立即能用
       export PATH="$TMUX_DIR/bin:$PATH"
     else
-      echo "✗ 解压也失败，请手动处理："
-      echo "  cd $TMUX_DIR/bin && ./tmux --appimage-extract"
+      echo "✗ 解压也失败或二进制不可执行，请手动处理。"
+      echo "  尝试: mkdir -p /tmp/tmux-bin && cp $BUNDLED_TMUX /tmp/tmux-bin/ &&"
+      echo "        cd /tmp/tmux-bin && chmod +x tmux && ./tmux --appimage-extract"
+      echo "        然后把 /tmp/tmux-bin/squashfs-root/usr/bin 加到 PATH"
     fi
   fi
 fi
