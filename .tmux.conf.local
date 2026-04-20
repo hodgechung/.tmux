@@ -593,3 +593,26 @@ set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu
 
 # 注：continuum.tmux 的加载在 apply_cheatsheet.sh 里做（只加载一次），
 # 因为 _apply_important 只 grep set/bind/unbind 行，不处理 run-shell。
+
+# ==========================================
+# 📋 A 档 2: 剪贴板集成（OSC52 主路径）
+# ==========================================
+# 本机是 SSH 环境，没有 xclip/xsel/wl-copy。使用 tmux 原生 OSC52：
+#   - set-clipboard=on 让 tmux 通过 OSC52 将 copy buffer 送回终端
+#   - 终端模拟器（iTerm2/Alacritty/WezTerm/kitty/现代 xterm）接收后
+#     放入系统剪贴板
+#   - copy-pipe-and-cancel "cat" 让 tmux 把选中文本管给 cat，cat 只读
+#     stdin 但不写 stdout，触发 tmux 的 OSC52 回传逻辑
+# 不装 tmux-yank：纯 SSH 无 xclip 场景下它只会覆盖 y 绑定弹错。
+set -s set-clipboard on #!important
+bind -T copy-mode-vi v send -X begin-selection #!important
+bind -T copy-mode-vi y send -X copy-pipe-and-cancel "cat" #!important
+bind -T copy-mode-vi Y send -X copy-pipe-end-of-line "cat" #!important
+bind -T copy-mode-vi MouseDragEnd1Pane send -X copy-pipe-no-clear "cat" #!important
+
+# ==========================================
+# 🎨 A 档 3: 真彩色 + tmux-256color terminfo
+# ==========================================
+# 进 ssh 前若对端不识别 tmux-256color，可手动 TERM=xterm-256color 覆盖
+set -g default-terminal "tmux-256color" #!important
+set -ga terminal-overrides ",xterm-256color:RGB,alacritty:RGB,xterm-kitty:RGB" #!important
