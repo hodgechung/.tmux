@@ -33,6 +33,7 @@ CONF="$HOME/.tmux.conf"
 
 # 如果存在打包好的 tmux AppImage，确保它可执行并优先使用
 BUNDLED_TMUX="$TMUX_DIR/bin/tmux"
+WRAPPER="$TMUX_DIR/bin/tmux-wrapper"
 if [ -f "$BUNDLED_TMUX" ]; then
   [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$BUNDLED_TMUX" 2>/dev/null || true
   # FUSE 检测：能 -V 就直接用
@@ -46,12 +47,40 @@ if [ -f "$BUNDLED_TMUX" ]; then
       echo "→ 尝试用 --appimage-extract 解压..."
       ( cd "$TMUX_DIR/bin" && "$BUNDLED_TMUX" --appimage-extract >/dev/null 2>&1 ) || true
     fi
-    if [ -x "$TMUX_DIR/bin/squashfs-root/usr/bin/tmux" ]; then
-      TMUX_BIN="$TMUX_DIR/bin/squashfs-root/usr/bin/tmux"
-      echo "✓ 已解压 AppImage，使用: $TMUX_BIN"
-      # 提示加入 PATH
-      echo "  建议把下面一行加进 ~/.bashrc 或 ~/.zshrc:"
-      echo "    export PATH=\"$TMUX_DIR/bin/squashfs-root/usr/bin:\$PATH\""
+    REAL_TMUX="$TMUX_DIR/bin/squashfs-root/usr/bin/tmux"
+    TERMINFO_DIR="$TMUX_DIR/bin/squashfs-root/usr/share/terminfo"
+    if [ -x "$REAL_TMUX" ]; then
+      # AppImage 解压后 tmux 找不到 terminfo，写一个 wrapper 自动设置环境
+      cat > "$WRAPPER" <<WRAPPER_EOF
+#!/usr/bin/env bash
+# 自动生成的 wrapper：为随包解压出的 tmux 提供 terminfo 路径
+# 由 install.offline.sh 生成，请勿手改
+TI="$TERMINFO_DIR"
+if [ -n "\${TERMINFO_DIRS:-}" ]; then
+  export TERMINFO_DIRS="\${TERMINFO_DIRS}:\$TI"
+else
+  export TERMINFO_DIRS="\$TI"
+fi
+# 外部 TERM 引用的条目若不在系统 terminfo 也不在我们打包的 terminfo 里，
+# 则兜底用 screen-256color（总是能工作）
+if [ -z "\${TERM:-}" ] || ! TERMINFO_DIRS="\$TERMINFO_DIRS" infocmp "\$TERM" >/dev/null 2>&1; then
+  export TERM=screen-256color
+fi
+exec "$REAL_TMUX" "\$@"
+WRAPPER_EOF
+      [ -n "$CHMOD_BIN" ] && "$CHMOD_BIN" +x "$WRAPPER" 2>/dev/null || true
+      # 让 ~/.tmux/bin/tmux 指向 wrapper（用户习惯直接敲 tmux），
+      # 保留原 AppImage 为 tmux.appimage
+      if [ -n "$LN_BIN" ]; then
+        mv -f "$BUNDLED_TMUX" "$TMUX_DIR/bin/tmux.appimage" 2>/dev/null || true
+        "$LN_BIN" -sfn "$WRAPPER" "$BUNDLED_TMUX"
+      fi
+      TMUX_BIN="$WRAPPER"
+      echo "✓ 已解压 AppImage + 生成 wrapper"
+      echo "  $WRAPPER → exec $REAL_TMUX"
+      echo "  wrapper 注入 TERMINFO_DIRS=$TERMINFO_DIR"
+      # 让当前脚本会话就能用 wrapper
+      export PATH="$TMUX_DIR/bin:$PATH"
     else
       echo "✗ 解压也失败，请手动处理："
       echo "  cd $TMUX_DIR/bin && ./tmux --appimage-extract"
