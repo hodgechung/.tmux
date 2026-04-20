@@ -16,13 +16,13 @@ unbind-key -T prefix ?
 unbind-key -T prefix h
 unbind-key -T prefix H
 
-# -- C-b ?：弹出浮层速查表 -----------------------------------------------------
-bind-key -T prefix ? display-popup -E -w 85% -h 90% -T " tmux 快捷键速查 " \
-  "$HOME/.tmux/scripts/cheat-sheet.sh"
+# -- C-b ?：弹出浮层速查表（用 less -R 分页，支持 PgUp/PgDn/j/k/q）-----------
+bind-key -T prefix ? display-popup -E -w 85% -h 90% -T " tmux 快捷键速查  (j/k PgUp/PgDn 翻页, q 关闭) " \
+  "$HOME/.tmux/scripts/cheat-sheet.sh | less -R"
 
-# -- C-b H：同上，作为 ? 的别名（大写好记）------------------------------------
-bind-key -T prefix H display-popup -E -w 85% -h 90% -T " tmux 快捷键速查 " \
-  "$HOME/.tmux/scripts/cheat-sheet.sh"
+# -- C-b H：同上（大写别名） --------------------------------------------------
+bind-key -T prefix H display-popup -E -w 85% -h 90% -T " tmux 快捷键速查  (j/k PgUp/PgDn 翻页, q 关闭) " \
+  "$HOME/.tmux/scripts/cheat-sheet.sh | less -R"
 
 # -- C-b h：原生 list-keys（兜底完整列表）-------------------------------------
 bind-key -T prefix h list-keys -N

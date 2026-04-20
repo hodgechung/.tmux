@@ -131,9 +131,4 @@ cat <<TIPS
   ${C_DESC}• 进 copy-mode 后可用 vim 键位移动、/ 搜索、y 复制${R}
 TIPS
 
-# popup 需要用户按键才关，下面的提示挂在最后
-printf "\n${C_PREFIX}────────────────────────────────────────────${R}\n"
-printf "${C_PREFIX}（按任意键或 Esc/q 关闭）${R}\n"
-
-# 让 popup 等用户按键
-read -rsn1 -t 300 || true
+# popup 由外层 less 负责等待用户；这里不再 read
