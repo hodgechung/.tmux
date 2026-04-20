@@ -5,7 +5,7 @@
 # 说明：
 #   - 本文件由 .tmux.conf.local 末尾 source 进来
 #   - .tmux.conf.local.help 在其后再次 source，负责最终的 ? 菜单
-#   - 所以本文件只保留确定要覆盖的“原子”设置，不再写 ? 菜单
+#   - 本文件只保留确定要覆盖的“原子”设置
 # ==========================================
 
 # -- Space 键强制为切换布局（防止其它插件/which-key 夺走）------------------
@@ -15,3 +15,32 @@ bind-key -T prefix Space next-layout
 # -- 状态栏右侧：加入 CPU 百分比 ------------------------------------------
 set -g status-right-length 200
 set -g status-right " #{?client_prefix,⌨ ,  }| CPU: #(~/.tmux/plugins/tmux-cpu/scripts/cpu_percentage.sh) | %H:%M | %Y-%m-%d | #(whoami)@#H "
+
+# ==========================================
+# 📟 双行状态栏 + prefix cheat-sheet
+# ==========================================
+#
+# 重要实现细节：
+#   - tmux 3.4 在 source-file 嵌套 source 时会跳过 run-shell 指令，
+#     所以我们不能在本文件里直接 `run-shell -b ...` 应用脚本。
+#   - 解决方案：仅注册 hook，让 tmux 在真实运行时（连接 client /
+#     切换窗口 / 运行 reload 快捷键）触发脚本。
+#
+# 实际生效路径：
+#   - 首次进入：client-attached hook → 脚本跑一次
+#   - 切窗口：after-select-window hook → 脚本刷新一次
+#   - 重载配置：C-b r 里显式 run-shell → 立即生效
+# ==========================================
+
+# client 连上时应用（覆盖 oh-my-tmux 异步主题之后的空值）
+set-hook -g client-attached 'run-shell -b "/root/.tmux/apply_cheatsheet.sh"'
+
+# 切换窗口后再贴一次（防止某些场景下被重置）
+set-hook -g after-select-window 'run-shell -b "/root/.tmux/apply_cheatsheet.sh"'
+
+# 重载快捷键：source-file 之后显式跑脚本（这里 run-shell 可以跑，
+# 因为是 binding 触发而不是 source 嵌套）
+unbind r
+bind r source-file ~/.tmux.conf \; \
+       run-shell -b '/root/.tmux/apply_cheatsheet.sh' \; \
+       display-message "config reloaded"
