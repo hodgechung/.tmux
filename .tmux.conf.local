@@ -547,7 +547,7 @@ set -g @tpm-install 'false'
 set -g @tpm-update 'false'
 set -g @tpm-clean 'false'
 set -g @plugin ''
-source-file ~/.tmux.conf.override
+source-file ~/.tmux/.tmux.conf.override
 
 # ==========================================
 # 🔧 禁用 gpakosz 的 TPM 自动管理
