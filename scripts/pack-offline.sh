@@ -169,9 +169,25 @@ fi
 find "$TMUX_DIR/scripts" -type f -name "*.sh" -exec chmod 755 {} + 2>/dev/null || true
 
 # ---------- 打包 ----------
+# 不用 --dereference：避免把 bin/tmux 这个 symlink 转成 hard link
+# （部分 tar 把 hard link 在跨 FS 解压时处理异常，导致 wrapper 指向不明）
+#
+# 但 plugins/ 是外部 symlink，需要物化进包。策略：临时在 TMUX_DIR
+# 下 bind-copy 一份 plugins 的真实内容，打完包后恢复 symlink。
+PLUG_LINK="$TMUX_DIR/plugins"
+PLUG_BACKUP=""
+if [ -L "$PLUG_LINK" ]; then
+  REAL_PLUG=$(readlink -f "$PLUG_LINK" 2>/dev/null || readlink "$PLUG_LINK")
+  if [ -d "$REAL_PLUG" ]; then
+    PLUG_BACKUP="$TMUX_DIR/.plugins.symlink.bak"
+    mv "$PLUG_LINK" "$PLUG_BACKUP"
+    cp -rL "$REAL_PLUG" "$PLUG_LINK"   # -L 深拷 symlink 内容
+    echo "ⓘ plugins symlink 临时物化: $REAL_PLUG"
+  fi
+fi
+
 echo "→ 打包 $TMUX_DIR -> $OUT"
 tar czf "$OUT" \
-    --dereference \
     --exclude="$REL/.git" \
     --exclude=".git" \
     --exclude="*.bak.*" \
@@ -180,8 +196,15 @@ tar czf "$OUT" \
     --exclude="tpm_log.txt" \
     --exclude="test-file" \
     --exclude=".omc" \
+    --exclude=".plugins.symlink.bak" \
     -C "$TOP" \
     "$REL"
+
+# 恢复 plugins symlink
+if [ -n "$PLUG_BACKUP" ] && [ -L "$PLUG_BACKUP" ]; then
+  rm -rf "$PLUG_LINK"
+  mv "$PLUG_BACKUP" "$PLUG_LINK"
+fi
 
 SZ=$(du -h "$OUT" | cut -f1)
 echo "✓ 输出: $OUT ($SZ)"
