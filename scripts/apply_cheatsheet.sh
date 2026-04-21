@@ -5,35 +5,39 @@
 
 set -euo pipefail
 
-# 等一下让 tmux 本轮 event loop 稳定
-sleep 0.3
+# 极简 shell 里 PATH 可能不含 /usr/bin（sleep/awk 会缺失），补全
+export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:${PATH:-}"
+
+# 小延迟让 tmux event loop 稳定。若 sleep 不存在就跳过（不强依赖）
+if command -v sleep >/dev/null 2>&1; then
+  sleep 0.3
+fi
+
+# --- 自注册 hooks（防 gpakosz _apply_important 失败导致僵尸 hook）---
+# 每次跑脚本都重贴 hook command，即使 .tmux.conf.local 里的 !important
+# 那套机制没生效，只要手动跑过一次脚本，后续 hook 就能用。
+HOOK_CMD="run-shell -b '$HOME/.tmux/scripts/apply_cheatsheet.sh'"
+for h in session-created client-attached after-select-window after-new-window pane-focus-in; do
+  tmux set-hook -g "$h" "$HOOK_CMD" 2>/dev/null || true
+done
 
 # --- 一次性加载 continuum（TPM 被禁用，需要手动 source 它的 .tmux）---
-if [[ "$(tmux show -gqv '@_continuum_loaded' 2>/dev/null || true)" != "1" ]]; then
+if [ "$(tmux show -gqv '@_continuum_loaded' 2>/dev/null || true)" != "1" ]; then
   CONT="$HOME/.tmux/plugins/tmux-continuum/continuum.tmux"
-  if [[ -x "$CONT" ]]; then
+  if [ -x "$CONT" ]; then
     "$CONT" >/dev/null 2>&1 || true
     tmux set -g '@_continuum_loaded' 1
   fi
 fi
 
 # --- 确保 continuum_save 触发器在 status-right 里（否则不会自动保存）---
-# continuum 加载时是用 `set -ag status-right "..."` 追加的，但我们在
-# .tmux.conf.local 里用 `set -g status-right "..."` 全量覆盖过它，所以
-# 这里检测一下：缺触发器就补上。
 CURRENT_SR="$(tmux show -gv status-right 2>/dev/null || true)"
-if [[ "$CURRENT_SR" != *continuum_save.sh* ]]; then
-  tmux set -ag status-right "#($HOME/.tmux/plugins/tmux-continuum/scripts/continuum_save.sh)"
-fi
+case "$CURRENT_SR" in
+  *continuum_save.sh*) : ;;
+  *) tmux set -ag status-right "#($HOME/.tmux/plugins/tmux-continuum/scripts/continuum_save.sh)" ;;
+esac
 
 # --- 第二行 cheat-sheet（上下文感知：copy-mode / prefix / marked / idle）---
-#
-# 嵌套三目: #{?pane_in_mode, COPY, #{?client_prefix, PREFIX, #{?pane_marked, MARKED, IDLE}}}
-# 注意事项：
-#   1) 三目分隔符是 `,`，文本里的字面逗号必须写 `#,`
-#   2) 在嵌套内层不能直接用双引号，所有样式都用 tmux 的 #[…]
-#   3) 为了可读性，分四个 shell 变量拼接
-
 # ---- IDLE：无 prefix、不在 copy 模式、没标记 pane ----
 IDLE='#[bg=#1c1c1c fg=#585858] tips: C-b ? 速查全部快捷键   C-b 唤起 prefix 查看高频键                                           '
 
