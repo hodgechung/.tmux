@@ -15,13 +15,16 @@
 ```bash
 # 有网机器：拉取并安装
 git clone --depth 1 git@github.com:hodgechung/.tmux.git ~/.tmux
-ln -sf ~/.tmux/.tmux.conf ~/.tmux.conf
+ln -sf ~/.tmux/.tmux.conf       ~/.tmux.conf
+ln -sf ~/.tmux/.tmux.conf.local ~/.tmux.conf.local   # 必须，否则 TPM 插件装不上
 
 # 启动 tmux
 tmux new -s main
 ```
 
 首次启动会由 gpakosz 的 `_apply_plugins` 自动 clone TPM + 6 个插件到 `~/.tmux/plugins/`，需要访问 GitHub。
+
+> ⚠️ **为什么要两个 symlink？** gpakosz 主配置会把 `TMUX_CONF_LOCAL` 推导为 `$TMUX_CONF.local`（即 `~/.tmux.conf.local`），并对它跑 `__discover_plugins` 来扫 `@plugin` 声明。如果缺少 `~/.tmux.conf.local` symlink，discovery 静默返回空，TPM 永远不会首次 clone，6 个插件一个都装不上（表现为 status-right 的 CPU 段空白、`prefix + /`/`F`/`O` 快捷键无反应）。
 
 ## 目录结构
 

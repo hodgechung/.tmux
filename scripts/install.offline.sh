@@ -12,7 +12,7 @@
 #
 # 由于 pack-offline.sh 已在打包机上预解压 AppImage + chmod 755 +
 # 预生成 wrapper，本脚本只做：
-#   - 建立 ~/.tmux.conf symlink（没 ln 就 cp）
+#   - 建立 ~/.tmux.conf 和 ~/.tmux.conf.local symlink（没 ln 就 cp）
 #   - 检查 tmux 版本
 #   - 引导把 $HOME/.tmux/bin 加入 PATH
 #   - 如果在 tmux 里则立即 reload
@@ -27,10 +27,12 @@ CHMOD_BIN=$(command -v chmod || true)
 
 TMUX_DIR="$HOME/.tmux"
 CONF="$HOME/.tmux.conf"
+CONF_LOCAL="$HOME/.tmux.conf.local"
 
 # 1. 必要文件检查
 [ -d "$TMUX_DIR" ]          || { echo "ERR: $TMUX_DIR 不存在，请先解包"; exit 1; }
 [ -f "$TMUX_DIR/.tmux.conf" ] || { echo "ERR: $TMUX_DIR/.tmux.conf 不存在"; exit 1; }
+[ -f "$TMUX_DIR/.tmux.conf.local" ] || { echo "ERR: $TMUX_DIR/.tmux.conf.local 不存在"; exit 1; }
 
 # 2. 兜底 chmod（tar 一般保留 mode，但某些 ACL/umask 场景仍会丢失）
 if [ -n "$CHMOD_BIN" ]; then
@@ -45,7 +47,10 @@ if [ -n "$CHMOD_BIN" ]; then
   }
 fi
 
-# 3. ~/.tmux.conf symlink（或 cp fallback）
+# 3. ~/.tmux.conf 和 ~/.tmux.conf.local symlink（或 cp fallback）
+# 注意：两个 symlink 都必需 —— gpakosz 主配置会对 $TMUX_CONF.local 跑
+# __discover_plugins 扫描 @plugin 声明，缺了 .tmux.conf.local symlink
+# 会导致 TPM 无法首次 clone、6 个插件全部装不上
 link_or_copy() {
   local src="$1" dst="$2"
   if [ -n "$LN_BIN" ]; then
@@ -56,13 +61,18 @@ link_or_copy() {
     echo "⚠ 未找到 ln，已退化为 cp；日后改配置需重跑本脚本同步: $dst"
   fi
 }
-if [ -L "$CONF" ] || [ ! -e "$CONF" ]; then
-  link_or_copy "$TMUX_DIR/.tmux.conf" "$CONF"
-else
-  mv -f "$CONF" "${CONF}.bak"
-  echo "⚠ $CONF 已存在且不是 symlink，已备份为 ${CONF}.bak"
-  link_or_copy "$TMUX_DIR/.tmux.conf" "$CONF"
-fi
+install_link() {
+  local src="$1" dst="$2"
+  if [ -L "$dst" ] || [ ! -e "$dst" ]; then
+    link_or_copy "$src" "$dst"
+  else
+    mv -f "$dst" "${dst}.bak"
+    echo "⚠ $dst 已存在且不是 symlink，已备份为 ${dst}.bak"
+    link_or_copy "$src" "$dst"
+  fi
+}
+install_link "$TMUX_DIR/.tmux.conf"       "$CONF"
+install_link "$TMUX_DIR/.tmux.conf.local" "$CONF_LOCAL"
 
 # 4. 定位 tmux：优先随包，其次系统
 BUNDLED_TMUX="$TMUX_DIR/bin/tmux"
