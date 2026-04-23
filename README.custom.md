@@ -1,6 +1,6 @@
 # 个人 tmux 配置（基于 oh-my-tmux）
 
-这是 [gpakosz/.tmux](https://github.com/gpakosz/.tmux)（俗称 oh-my-tmux）的个人 fork，补丁集中在：
+这是 [hodgechung/.tmux](https://github.com/hodgechung/.tmux)（俗称 oh-my-tmux）的个人 fork，补丁集中在：
 
 1. **`C-b ?` 帮助菜单重写**：用 tmux 3.0+ 的 `{…}` 块语法重构，修复子菜单命令被 `,` 误当三目分隔符截断的问题
 2. **双行状态栏 + prefix cheat-sheet**：按下 `C-b` 时第二行亮起常用快捷键
@@ -84,6 +84,26 @@ ssh user@offline '
 ```
 
 若离线机器没装 tmux 3.x，建议同时带上 [tmux AppImage](https://github.com/nelsonenzo/tmux-appimage)。
+
+### `pack-online.sh` vs `pack-offline.sh`
+
+| 脚本 | 适用场景 | 行为 |
+|---|---|---|
+| `pack-online.sh` | **干净的有网机器**（没装/没用过本配置） | 从零开始：`git clone` 上游仓库 + 自动安装插件（优先 TPM hook，失败则手动 clone）+ 下载并预解压 tmux AppImage |
+| `pack-offline.sh` | **日常使用的机器**（`~/.tmux` 已存在，插件已 clone） | 直接打包现有 `~/.tmux`，可选 `--with-tmux` 下载 AppImage |
+
+两者产物结构完全一致，离线机器上都用 `install.offline.sh` 解包安装。
+
+`pack-online.sh` 常用参数：
+
+```bash
+bash scripts/pack-online.sh                              # 默认：gpakosz 仓库 + tmux 3.5a
+bash scripts/pack-online.sh --repo <自己的 fork 地址>    # 打包自己的 fork（包含 scripts/ 等补丁）
+bash scripts/pack-online.sh --no-tmux                    # 不打包 AppImage（~580KB）
+bash scripts/pack-online.sh --tmux-version 3.3a          # 指定 tmux 版本
+bash scripts/pack-online.sh -o /tmp/out.tgz              # 自定义输出路径
+```
+
 
 ## 核心实现细节（避免踩坑）
 
